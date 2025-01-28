@@ -1,4 +1,5 @@
 import clang.cindex
+import re
 
 def parse_c_code(file_path):
     index = clang.cindex.Index.create()
@@ -15,3 +16,13 @@ def parse_c_code(file_path):
 
     traverse(translation_unit.cursor)
     return elements
+
+def merge_c_files(main_file):
+    with open(main_file, "r") as f:
+        content = f.read()
+    includes = re.findall(r'#include\s+"(.+?)"', content)
+    for include in includes:
+        with open(include, "r") as f:
+            include_content = f.read()
+        content = content.replace(f'#include "{include}"', include_content)
+    return content
